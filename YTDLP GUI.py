@@ -126,9 +126,10 @@ credits_button = tk.Button(footer_frame, text="Credits", command=show_credits, w
 credits_button.pack(side="left", padx=5)
 
 def open_docs():
-    webbrowser.open_new("https://www.youtube.com/watch?v=dQw4w9WgXcQ")  # placeholder rickroll link
+    webbrowser.open_new("https://github.com/Foofiewastaken/yt-dlp-gui")  # docs link
 
 docs_button = tk.Button(footer_frame, text="Docs", command=open_docs, width=10)
 docs_button.pack(side="left", padx=5)
 
 app.mainloop()
+
