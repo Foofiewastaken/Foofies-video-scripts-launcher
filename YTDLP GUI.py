@@ -3,16 +3,24 @@ import subprocess
 import tkinter as tk
 from tkinter import messagebox, font
 import webbrowser
+import sys
 
-# ---------- App setup ----------
-SCRIPTS_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ScriptsNDownloads")
+# ---------- Determine app folder ----------
+if getattr(sys, 'frozen', False):
+    # Running as PyInstaller EXE
+    APP_DIR = os.path.dirname(sys.executable)
+else:
+    # Running as Python script
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
+SCRIPTS_FOLDER = os.path.join(APP_DIR, "Scripts")
 
+# ---------- Run script ----------
 def run_script(script_name):
     path = os.path.join(SCRIPTS_FOLDER, script_name)
     if os.path.exists(path):
-        # Runs script in a new console that closes after it ends or after typing "exit"
-        subprocess.Popen(['cmd', '/c', path], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        # Run the batch script in a temporary cmd window; it will close when done
+        subprocess.Popen(['cmd', '/c', path])
     else:
         messagebox.showerror("Error", f"Script not found:\n{path}")
 
@@ -39,13 +47,13 @@ def show_tips():
     txt.insert("end", "downloading this extension")
     end_index = txt.index("end-1c")
     txt.insert("end",
-        ". \n" 
+        ". \n"
         "2. Open the extension in Youtube, and click export. \n"
-        "3. Move the cookies from Downloads to the 'ScriptsNDownloads' folder.\n"
+        "3. Move the cookies from Downloads to the root folder.\n"
         "4. Rerun the script.\n\n"
         "Cookies have to be named www.youtube.com_cookies.txt or music.youtube.com_cookies.txt, "
         "because the scripts expect such names! \n\n\n"
-        "If you want to add more scripts, put them in the 'ScriptsNDownloads' folder. All your downloads will also be there!"
+        "If you want to add more scripts, put them in the root folder. All your downloads will be Scripts and Downloads!"
     )
 
     txt.tag_add("link", start_index, end_index)
@@ -74,20 +82,7 @@ def show_credits():
     top = tk.Toplevel(root)
     top.title("Credits")
     top.geometry("400x200")
-    tk.Label(
-        top,
-        text=(
-            "The scripts and this GUI are all made by Foofie.\n"
-            "If you got this app from anywhere aside from me directly,\n"
-            "or my GitHub, it might be a virus!\n\n"
-            "My socials:\n"
-            "Discord: .foofie\n"
-            "Telegram: @Foofie_UwU\n"
-            "GitHub: not yet made"
-        ),
-        font=("Segoe UI", 12),
-        justify="center"
-    ).pack(pady=20)
+    tk.Label(top, text="The scripts and this GUI is all made by Foofie. \n If you got this app from anywhere aside from me directly, \n or my github, it might be a virus! \n\n My socials are: \n Discord: .foofie \n Telegram @Foofie_UwU \n Git-Hub: Click Docs button in the main GUI", font=("Segoe UI", 12)).pack(pady=20)
 
     btn = tk.Button(top, text="OK", command=top.destroy)
     btn.pack(pady=10)
@@ -131,7 +126,7 @@ if os.path.exists(SCRIPTS_FOLDER):
     else:
         tk.Label(app, text="No .bat files found.").pack(pady=20)
 else:
-    tk.Label(app, text="ScriptsNDownloads folder not found.").pack(pady=20)
+    tk.Label(app, text="Scripts folder not found.").pack(pady=20)
 
 # Footer frame with Credits and Docs buttons
 footer_frame = tk.Frame(app)
@@ -141,7 +136,7 @@ credits_button = tk.Button(footer_frame, text="Credits", command=show_credits, w
 credits_button.pack(side="left", padx=5)
 
 def open_docs():
-    webbrowser.open_new("https://github.com/Foofiewastaken/yt-dlp-gui")  # docs link
+    webbrowser.open_new("https://github.com/Foofiewastaken/yt-dlp-gui")
 
 docs_button = tk.Button(footer_frame, text="Docs", command=open_docs, width=10)
 docs_button.pack(side="left", padx=5)
