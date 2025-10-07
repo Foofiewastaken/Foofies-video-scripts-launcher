@@ -110,7 +110,7 @@ tips_button.pack(side="left")
 sub_font = font.Font(family="Segoe UI", size=9)
 tk.Label(
     app,
-    text="Click a button below to run the desired script.",
+    text="Click a button below to run the desired script. \n The EXIT command is case sensitive!",
     font=sub_font, fg="#555"
 ).pack(pady=(0, 10))
 
