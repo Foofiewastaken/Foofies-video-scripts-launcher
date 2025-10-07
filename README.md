@@ -1,3 +1,2 @@
-DISCLAIMER!
+If you want to add your own scripts, put them in a .bat file, and put it into ScriptsNDownloads
 
-To use the GUI, you need to either create a ScriptsNDownloads folder, and provide your own yt-dlp .bat scripts, or download mine from the files.
