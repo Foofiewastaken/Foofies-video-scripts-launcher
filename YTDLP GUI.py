@@ -5,12 +5,14 @@ from tkinter import messagebox, font
 import webbrowser
 
 # ---------- App setup ----------
-SCRIPTS_FOLDER = os.path.join(os.getcwd(), "ScriptsNDownloads")
+SCRIPTS_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ScriptsNDownloads")
+
 
 def run_script(script_name):
     path = os.path.join(SCRIPTS_FOLDER, script_name)
     if os.path.exists(path):
-        subprocess.Popen(['cmd', '/c', 'start', '', path], shell=True)
+        # Runs script in a new console that closes after it ends or after typing "exit"
+        subprocess.Popen(['cmd', '/c', path], creationflags=subprocess.CREATE_NEW_CONSOLE)
     else:
         messagebox.showerror("Error", f"Script not found:\n{path}")
 
@@ -62,7 +64,7 @@ def show_tips():
     top.grab_set()
     root.wait_window(top)
 
-# ---------- Credits function (empty window for now) ----------
+# ---------- Credits function ----------
 def show_credits():
     root = tk._default_root
     if root is None:
@@ -72,7 +74,20 @@ def show_credits():
     top = tk.Toplevel(root)
     top.title("Credits")
     top.geometry("400x200")
-    tk.Label(top, text="The scripts and this GUI is all made by Foofie. \n If you got this app from anywhere aside from me directly, \n or my github, it might be a virus! \n\n My socials are: \n Discord: .foofie \n Telegram @Foofie_UwU \n Git-Hub: not yet made", font=("Segoe UI", 12)).pack(pady=20)
+    tk.Label(
+        top,
+        text=(
+            "The scripts and this GUI are all made by Foofie.\n"
+            "If you got this app from anywhere aside from me directly,\n"
+            "or my GitHub, it might be a virus!\n\n"
+            "My socials:\n"
+            "Discord: .foofie\n"
+            "Telegram: @Foofie_UwU\n"
+            "GitHub: not yet made"
+        ),
+        font=("Segoe UI", 12),
+        justify="center"
+    ).pack(pady=20)
 
     btn = tk.Button(top, text="OK", command=top.destroy)
     btn.pack(pady=10)
@@ -132,4 +147,3 @@ docs_button = tk.Button(footer_frame, text="Docs", command=open_docs, width=10)
 docs_button.pack(side="left", padx=5)
 
 app.mainloop()
-
