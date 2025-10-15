@@ -4,34 +4,30 @@ import tkinter as tk
 from tkinter import messagebox, font
 import webbrowser
 import sys
+import urllib.request
+import zipfile
+import shutil
+import platform
 
-# ---------- Determine app folder ----------
+# ---------- App folders ----------
 if getattr(sys, 'frozen', False):
-    # Running as PyInstaller EXE
     APP_DIR = os.path.dirname(sys.executable)
 else:
-    # Running as Python script
     APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SCRIPTS_FOLDER = os.path.join(APP_DIR, "Scripts")
 
-# ---------- Run script ----------
+# ---------- Run batch script ----------
 def run_script(script_name):
     path = os.path.join(SCRIPTS_FOLDER, script_name)
     if os.path.exists(path):
-        # Run the batch script in a temporary cmd window; it will close when done
         subprocess.Popen(['cmd', '/c', path])
     else:
         messagebox.showerror("Error", f"Script not found:\n{path}")
 
-# ---------- Tips function with hyperlink ----------
+# ---------- Tips ----------
 def show_tips():
-    root = tk._default_root
-    if root is None:
-        root = tk.Tk()
-        root.withdraw()
-
-    top = tk.Toplevel(root)
+    top = tk.Toplevel(app)
     top.title("Tips")
     top.resizable(False, False)
 
@@ -41,104 +37,133 @@ def show_tips():
         "1. Export your browser cookies file (www.youtube.com_cookies.txt or music.youtube.com_cookies.txt). "
         "Best way to do this, is by "
     )
-
-    # Add hyperlink
     start_index = txt.index("end-1c")
     txt.insert("end", "downloading this extension")
     end_index = txt.index("end-1c")
     txt.insert("end",
-        ". \n"
-        "2. Open the extension in Youtube, and click export. \n"
+        ". \n2. Open the extension in Youtube, and click export. \n"
         "3. Move the cookies from Downloads to the root folder.\n"
         "4. Rerun the script.\n\n"
-        "Cookies have to be named www.youtube.com_cookies.txt or music.youtube.com_cookies.txt, "
-        "because the scripts expect such names! \n\n\n"
-        "If you want to add more scripts, put them in the root folder. All your downloads will be Scripts and Downloads!"
+        "Cookies must be named www.youtube.com_cookies.txt or music.youtube.com_cookies.txt.\n\n"
+        "Add more scripts in the root folder."
     )
-
     txt.tag_add("link", start_index, end_index)
     txt.tag_config("link", foreground="blue", underline=1)
     txt.tag_bind("link", "<Button-1>", lambda e: webbrowser.open_new(
-        "https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
+        "https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
     ))
 
     txt.config(state="disabled")
     txt.pack(fill="both", expand=True)
-
-    btn = tk.Button(top, text="OK", command=top.destroy)
-    btn.pack(pady=(6, 10))
-
-    top.transient(root)
+    tk.Button(top, text="OK", command=top.destroy).pack(pady=(6, 10))
+    top.transient(app)
     top.grab_set()
-    root.wait_window(top)
+    app.wait_window(top)
 
-# ---------- Credits function ----------
+# ---------- Credits ----------
 def show_credits():
-    root = tk._default_root
-    if root is None:
-        root = tk.Tk()
-        root.withdraw()
-
-    top = tk.Toplevel(root)
+    top = tk.Toplevel(app)
     top.title("Credits")
     top.geometry("400x200")
-    tk.Label(top, text="The scripts and this GUI is all made by Foofie. \n If you got this app from anywhere aside from me directly, \n or my github, it might be a virus! \n\n My socials are: \n Discord: .foofie \n Telegram @Foofie_UwU \n Git-Hub: Click Docs button in the main GUI", font=("Segoe UI", 12)).pack(pady=20)
+    top.resizable(False, False)
 
-    btn = tk.Button(top, text="OK", command=top.destroy)
-    btn.pack(pady=10)
-
-    top.transient(root)
+    tk.Label(top, text="Scripts and GUI made by Foofie.\nIf obtained elsewhere, might be a virus.\n\n"
+                        "Discord: .foofie\nTelegram: @Foofie_UwU\nGitHub: Click Docs button",
+             font=("Segoe UI", 12), justify="center").pack(pady=20)
+    tk.Button(top, text="OK", command=top.destroy).pack(pady=10)
+    top.transient(app)
     top.grab_set()
-    root.wait_window(top)
+    app.wait_window(top)
+
+# ---------- FFMPEG Functions ----------
+FFMPEG_PATH = os.path.join(APP_DIR, "ffmpeg.exe")
+
+def check_ffmpeg():
+    """Return True if ffmpeg is available either in PATH or in app root."""
+    if os.path.exists(FFMPEG_PATH):
+        return True
+    try:
+        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+def install_ffmpeg():
+    """Download and place ffmpeg.exe into the app root folder."""
+    system = platform.system()
+    if system != "Windows":
+        messagebox.showerror("Error", "Auto-install only implemented for Windows.")
+        return
+
+    url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+    zip_path = os.path.join(APP_DIR, "ffmpeg.zip")
+
+    try:
+        urllib.request.urlretrieve(url, zip_path)
+
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(APP_DIR)
+        os.remove(zip_path)
+
+        # Find ffmpeg.exe
+        for root_dir, dirs, files in os.walk(APP_DIR):
+            if "ffmpeg.exe" in files:
+                shutil.copy(os.path.join(root_dir, "ffmpeg.exe"), FFMPEG_PATH)
+                break
+
+        # Cleanup
+        for folder in os.listdir(APP_DIR):
+            if folder.startswith("ffmpeg-") and os.path.isdir(os.path.join(APP_DIR, folder)):
+                shutil.rmtree(os.path.join(APP_DIR, folder))
+
+        messagebox.showinfo("FFMPEG", "FFMPEG has been installed in the app root!")
+
+    except Exception as e:
+        messagebox.showerror("FFMPEG Install Error", str(e))
+
+def check_ffmpeg_button():
+    try:
+        if check_ffmpeg():
+            messagebox.showinfo("FFMPEG", "FFMPEG is already installed!")
+        else:
+            if messagebox.askyesno("FFMPEG", "FFMPEG not found. Install it now?"):
+                install_ffmpeg()
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to check/install FFMPEG:\n{e}")
 
 # ---------- GUI ----------
 app = tk.Tk()
 app.title("yt-dlp Script Launcher")
 app.geometry("420x500")
+app.resizable(False, False)
 
-# Title + Tips button on same line
 header_frame = tk.Frame(app)
 header_frame.pack(pady=(10, 4))
+tk.Label(header_frame, text="Foofie's yt-dlp scripts launcher", font=("Segoe UI", 14, "bold")).pack(side="left", padx=(0,10))
+tk.Button(header_frame, text="Tips", command=show_tips, width=6).pack(side="left")
 
-title = tk.Label(header_frame, text="Foofie's yt-dlp scripts launcher", font=("Segoe UI", 14, "bold"))
-title.pack(side="left", padx=(0, 10))
-
-tips_button = tk.Button(header_frame, text="Tips", command=show_tips, width=6)
-tips_button.pack(side="left")
-
-# Small subtext below
-sub_font = font.Font(family="Segoe UI", size=9)
-tk.Label(
-    app,
-    text="Click a button below to run the desired script. \n The EXIT command is case sensitive!",
-    font=sub_font, fg="#555"
-).pack(pady=(0, 10))
+tk.Label(app, text="Click a button below to run the desired script.\nThe EXIT command is case sensitive!",
+         font=font.Font(family="Segoe UI", size=9), fg="#555").pack(pady=(0, 10))
 
 # Script buttons
 if os.path.exists(SCRIPTS_FOLDER):
     scripts = [f for f in os.listdir(SCRIPTS_FOLDER) if f.endswith(".bat")]
     if scripts:
         for script in scripts:
-            tk.Button(
-                app, text=script.replace(".bat", ""), width=46,
-                command=lambda s=script: run_script(s)
-            ).pack(pady=4)
+            tk.Button(app, text=script.replace(".bat",""), width=46,
+                      command=lambda s=script: run_script(s)).pack(pady=4)
     else:
         tk.Label(app, text="No .bat files found.").pack(pady=20)
 else:
     tk.Label(app, text="Scripts folder not found.").pack(pady=20)
 
-# Footer frame with Credits and Docs buttons
+# Footer
 footer_frame = tk.Frame(app)
 footer_frame.pack(side="bottom", pady=10)
 
-credits_button = tk.Button(footer_frame, text="Credits", command=show_credits, width=10)
-credits_button.pack(side="left", padx=5)
-
-def open_docs():
-    webbrowser.open_new("https://github.com/Foofiewastaken/yt-dlp-gui")
-
-docs_button = tk.Button(footer_frame, text="Docs", command=open_docs, width=10)
-docs_button.pack(side="left", padx=5)
+tk.Button(footer_frame, text="Credits", command=show_credits, width=10).pack(side="left", padx=5)
+tk.Button(footer_frame, text="Docs", command=lambda: webbrowser.open_new(
+    "https://github.com/Foofiewastaken/yt-dlp-gui"), width=10).pack(side="left", padx=5)
+tk.Button(footer_frame, text="Check for FFMPEG", command=check_ffmpeg_button, width=15).pack(side="left", padx=5)
 
 app.mainloop()
