@@ -38,6 +38,9 @@ echo  0. Go back
 echo ========================================
 set /p OPTION=Select an option [1-3]: 
 cls
+if /i "%OPTION%"=="EXIT" goto exit
+if /i "%OPTION%"=="Exit" goto exit
+if /i "%OPTION%"=="exit" goto exit
 if "%OPTION%"=="1" goto copy_link
 if "%OPTION%"=="2" goto copy_direct
 if "%OPTION%"=="3" goto download
@@ -64,6 +67,7 @@ timeout /t 5 >nul
 goto loop
 
 :exit
+cls
 echo Exiting...
 timeout /t 1 >nul
 exit

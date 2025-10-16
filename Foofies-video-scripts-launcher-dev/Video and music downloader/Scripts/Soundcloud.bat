@@ -29,7 +29,9 @@ echo  2. Download
 echo  0. Go back
 echo ========================================
 set /p choice=Select an option [1-2]: 
-
+if /i "!choice!"=="Exit" goto exit
+if /i "!choice!"=="exit" goto exit
+if /i "!choice!"=="EXIT" goto exit
 :: Only pass cookies if file exists
 set cookies_arg=
 if exist "soundcloud.com_cookies.txt" set cookies_arg=--cookies "soundcloud.com_cookies.txt"
@@ -79,6 +81,7 @@ for /f "usebackq delims=" %%a in ("temp_url.txt") do (
 goto loop
 
 :exit
+cls
 echo Exiting...
 timeout /t 1 >nul
 exit
