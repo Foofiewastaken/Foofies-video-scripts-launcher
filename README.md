@@ -8,7 +8,7 @@ Spotify:
 * Optional Artist prompt for better search results
 * Copy Youtube video link
 * Copy direct URL (For VRChat video players)
-* Download song
+* Download song (with or without the music video)
 
 Youtube:
 * Download normally (mp4)
@@ -26,5 +26,6 @@ It's kind of a fork of https://github.com/yt-dlp/yt-dlp/releases/tag/2025.09.26
 
 
 I expect you to already have Python 3.11 as not everything is an exe, and there are bare .py files. Maybe some time in the future I'll put everything into one exe, or just build smaller execs that won't require python, but idk, I'm a begginer
+
 
 
