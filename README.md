@@ -2,7 +2,7 @@ If you want to add your own scripts, put them in a .bat file, and put it into Sc
 All your downloaded videos, sounds and music will be in the Downloads folder
 
 
-It's kind of a fork of https://github.com/yt-dlp/yt-dlp/releases/tag/2025.09.26
-
+It's kind of a fork of https://github.com/yt-dlp/yt-dlp
 
 I expect you to already have Python 3.11 as not everything is an exe, and there are bare .py files. Maybe some time in the future I'll put everything into one exe, or just build smaller execs that won't require python, but idk, I'm a begginer
+
