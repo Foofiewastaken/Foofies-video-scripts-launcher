@@ -29,6 +29,9 @@ echo  4. Copy direct video URL to clipboard
 echo  0. Go back
 echo ========================================
 set /p choice=Select an option [1-4]: 
+if /i "!choice!"=="EXIT" goto exit
+if /i "!choice!"=="Exit" goto exit
+if /i "!choice!"=="exit" goto exit
 cls
 set cookies=www.youtube.com_cookies.txt
 cls
@@ -76,6 +79,7 @@ timeout /t 5 >nul
 goto loop
 
 :exit
+cls
 echo Exiting...
 timeout /t 1 >nul
 exit
