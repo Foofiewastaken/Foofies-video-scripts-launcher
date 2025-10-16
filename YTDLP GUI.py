@@ -33,7 +33,7 @@ def show_tips():
     top.resizable(False, False)
     top.configure(bg="black")
 
-    txt = tk.Text(top, wrap="word", width=72, height=18, padx=10, pady=10, borderwidth=0,
+    txt = tk.Text(top, wrap="word", width=72, height=13, padx=10, pady=10, borderwidth=0,
                    bg="black", fg="white", insertbackground="white")
     txt.insert("end",
         "If a video is restricted or you get a cookies error:\n\n"
@@ -67,7 +67,7 @@ def show_tips():
 def show_credits():
     top = tk.Toplevel(app)
     top.title("Credits")
-    top.geometry("400x200")
+    top.geometry("400x215")
     top.resizable(False, False)
     top.configure(bg="black")
 
@@ -83,7 +83,6 @@ def show_credits():
 FFMPEG_PATH = os.path.join(APP_DIR, "ffmpeg.exe")
 
 def check_ffmpeg():
-    """Return True if ffmpeg is available either in PATH or in app root."""
     if os.path.exists(FFMPEG_PATH):
         return True
     try:
@@ -93,32 +92,23 @@ def check_ffmpeg():
         return False
 
 def install_ffmpeg():
-    """Download and place ffmpeg.exe into the app root folder."""
     system = platform.system()
     if system != "Windows":
         raise RuntimeError("Auto-install only implemented for Windows.")
-
     url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
     zip_path = os.path.join(APP_DIR, "ffmpeg.zip")
-
     urllib.request.urlretrieve(url, zip_path)
-
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(APP_DIR)
     os.remove(zip_path)
-
-    # Find ffmpeg.exe
     for root_dir, dirs, files in os.walk(APP_DIR):
         if "ffmpeg.exe" in files:
             shutil.copy(os.path.join(root_dir, "ffmpeg.exe"), FFMPEG_PATH)
             break
-
-    # Cleanup
     for folder in os.listdir(APP_DIR):
         if folder.startswith("ffmpeg-") and os.path.isdir(os.path.join(APP_DIR, folder)):
             shutil.rmtree(os.path.join(APP_DIR, folder))
 
-# ---------- Startup FFMPEG check ----------
 def download_ffmpeg_thread(top):
     try:
         install_ffmpeg()
@@ -130,31 +120,22 @@ def download_ffmpeg_thread(top):
         app.destroy()
 
 def check_ffmpeg_startup():
-    """Prompt user to download FFMPEG if missing, or exit."""
     if check_ffmpeg():
-        return  # Already installed
-
-    # Create a modal popup
+        return
     top = tk.Toplevel(app)
     top.title("FFMPEG not found")
     top.resizable(False, False)
     top.configure(bg="black")
-
     label = tk.Label(top, text="FFMPEG was not detected.\nDo you want to download and install it now?",
                      fg="white", bg="black", font=("Segoe UI", 10), justify="center")
     label.pack(padx=20, pady=20)
-
-    # Disable close button
     top.protocol("WM_DELETE_WINDOW", lambda: None)
-
     top.transient(app)
     top.grab_set()
-    app.update()  # Render popup
+    app.update()
 
     def start_download():
-        # Change text
         label.config(text="Downloading and installing FFMPEG, please wait...")
-        # Hide buttons
         for widget in btn_frame.winfo_children():
             widget.pack_forget()
         threading.Thread(target=download_ffmpeg_thread, args=(top,), daemon=True).start()
@@ -170,20 +151,18 @@ def check_ffmpeg_startup():
 # ---------- GUI ----------
 app = tk.Tk()
 app.title("Foofie's video Script Launcher")
-app.geometry("420x500")
+app.geometry("360x250")
 app.resizable(False, False)
 app.configure(bg="black")
 
 header_frame = tk.Frame(app, bg="black")
 header_frame.pack(pady=(10, 4))
 tk.Label(header_frame, text="Foofie's video scripts launcher",
-         font=("Segoe UI", 14, "bold"), fg="white", bg="black").pack(side="left", padx=(0,10))
-tk.Button(header_frame, text="Tips", command=show_tips, width=6, fg="white", bg="#333").pack(side="left")
+         font=("Segoe UI", 14, "bold"), fg="white", bg="black").pack(side="left")
 
-tk.Label(app, text="Click a button below to run the desired script.\nThe EXIT command is case sensitive!",
+tk.Label(app, text="Click a button below to run the desired script.",
          font=font.Font(family="Segoe UI", size=9), fg="white", bg="black").pack(pady=(0, 10))
 
-# Script buttons
 if os.path.exists(SCRIPTS_FOLDER):
     scripts = [f for f in os.listdir(SCRIPTS_FOLDER) if f.endswith(".bat")]
     if scripts:
@@ -196,15 +175,13 @@ if os.path.exists(SCRIPTS_FOLDER):
 else:
     tk.Label(app, text="Scripts folder not found.", fg="white", bg="black").pack(pady=20)
 
-# Footer
 footer_frame = tk.Frame(app, bg="black")
 footer_frame.pack(side="bottom", pady=10)
 
+tk.Button(footer_frame, text="Tips", command=show_tips, width=10, fg="white", bg="#333").pack(side="left", padx=5)
 tk.Button(footer_frame, text="Credits", command=show_credits, width=10, fg="white", bg="#333").pack(side="left", padx=5)
 tk.Button(footer_frame, text="Docs", command=lambda: webbrowser.open_new(
     "https://github.com/Foofiewastaken/yt-dlp-gui"), width=10, fg="white", bg="#333").pack(side="left", padx=5)
 
-# --- Schedule FFMPEG popup after GUI loads ---
 app.after(100, check_ffmpeg_startup)
-
 app.mainloop()
