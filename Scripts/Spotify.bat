@@ -43,25 +43,24 @@ if "%OPTION%"=="2" goto copy_direct
 if "%OPTION%"=="3" goto download
 if "%OPTION%"=="0" goto loop
 goto copy_link
-pause
-goto menu
 
 :copy_link
 for /f "delims=" %%i in ('python "%SCRIPT_DIR%spotify_tool.py" link "%SPOTIFY_URL%" "%ARTIST%"') do set YT_LINK=%%i
 echo YouTube link copied to clipboard: %YT_LINK%
-pause
+timeout /t 5 >nul
 goto loop
 
 :copy_direct
+echo Please wait, yt-dlp is working!
 for /f "delims=" %%i in ('python "%SCRIPT_DIR%spotify_tool.py" direct "%SPOTIFY_URL%" "%ARTIST%"') do set DIRECT_URL=%%i
 echo Direct playable URL copied to clipboard: %DIRECT_URL%
-pause
+timeout /t 5 >nul
 goto loop
 
 :download
 set /p VIDEO_CHOICE=Do you want the music video? (y/n): 
 python "%SCRIPT_DIR%spotify_tool.py" download "%SPOTIFY_URL%" "%ARTIST%" %VIDEO_CHOICE%
-pause
+timeout /t 5 >nul
 goto loop
 
 :exit

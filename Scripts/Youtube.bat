@@ -24,6 +24,7 @@ echo  1. Video + Audio (mp4) (DEFAULT)
 echo  2. Audio only (mp3)
 echo  3. Video only (no sound)
 echo  4. Copy direct video URL to clipboard
+echo  0. Go back
 echo ========================================
 set /p choice=Select an option [1-4]: 
 cls
@@ -35,7 +36,12 @@ if "!choice!"=="1" (
     yt-dlp -f "bestaudio/best" --extract-audio --audio-format mp3 --audio-quality 0 --cookies %cookies% -o "Downloads/YT sounds/%%(title)s.%%(ext)s" !url!
 ) else if "!choice!"=="3" (
     yt-dlp -f "bestvideo/best" --cookies %cookies% -o "Downloads/YT vids no sound/%%(title)s.%%(ext)s" !url!
-) else if "!choice!"=="4" (
+) else if "!choice!"=="1" (
+goto loop
+)
+
+
+ else if "!choice!"=="4" (
     rem Get direct video URL and copy to clipboard
     yt-dlp --no-playlist -t mp4 --get-url --cookies %cookies% "!url!" > temp_url.txt
     for /f "usebackq delims=" %%a in ("temp_url.txt") do (

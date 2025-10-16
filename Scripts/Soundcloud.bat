@@ -26,6 +26,7 @@ echo  SoundCloud Options
 echo ========================================
 echo  1. Copy direct MP3 URL to clipboard (DEFAULT)
 echo  2. Download
+echo  0. Go back
 echo ========================================
 set /p choice=Select an option [1-2]: 
 
@@ -62,6 +63,10 @@ if "!choice!"=="2" (
     echo Download complete!
     timeout /t 5 >nul
     goto loop
+)
+
+if "!choice!"=="1" (
+goto loop
 )
 
 :: Default fallback to copy
