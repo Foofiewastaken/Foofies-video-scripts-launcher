@@ -53,7 +53,7 @@ goto loop
 :copy_direct
 echo Please wait, yt-dlp is working!
 for /f "delims=" %%i in ('python "%SCRIPT_DIR%spotify_tool.py" direct "%SPOTIFY_URL%" "%ARTIST%"') do set DIRECT_URL=%%i
-echo Direct playable URL copied to clipboard: %DIRECT_URL%
+echo Direct playable URL copied to clipboard
 timeout /t 5 >nul
 goto loop
 
